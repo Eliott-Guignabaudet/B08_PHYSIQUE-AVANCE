@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{22335B7C-4DD5-A597-A04C-9595FCF69355}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "FurieuxOiseaux",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		}
+	]
+}
