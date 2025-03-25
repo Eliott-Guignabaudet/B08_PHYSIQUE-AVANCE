@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "ProjectileInterface.h"
 #include "CoreMinimal.h"
 #include "InputAction.h"
 #include "Camera/CameraComponent.h"
@@ -81,6 +82,9 @@ public:
 	void StartAiming();
 	void StopAiming();
 
+	UFUNCTION(BlueprintPure)
+	FVector GetProjectileDirection();
 private:
 	void UpdateProjectilePosition();
+	
 };

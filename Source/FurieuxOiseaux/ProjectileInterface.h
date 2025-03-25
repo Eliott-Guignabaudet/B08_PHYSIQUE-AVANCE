@@ -20,8 +20,8 @@ class IProjectileInterface
 	GENERATED_BODY()
 
 public:
-	void LaunchProjectile(FVector DirectionValue);
-	void PredictTrajectory(FVector DirectionValue);
+	void LaunchProjectile(FVector DirectionValue, float ForceValue);
+	void PredictTrajectory(FVector DirectionValue, float ForceValue);
 	
 };
 

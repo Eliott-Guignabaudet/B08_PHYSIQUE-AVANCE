@@ -3,3 +3,10 @@
 
 #include "ProjectileInterface.h"
 
+void IProjectileInterface::LaunchProjectile(FVector DirectionValue, float ForceValue)
+{
+}
+
+void IProjectileInterface::PredictTrajectory(FVector DirectionValue, float ForceValue)
+{
+}
