@@ -3,6 +3,7 @@
 
 #include "AFurieuxOiseauxCharacter.h"
 #include "EnhancedInputComponent.h"
+#include "ProjectileInterface.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
@@ -65,7 +66,7 @@ void AAFurieuxOiseauxCharacter::Aiming(const FInputActionInstance& Instance)
 		CurrentAimingValue.Normalize();
 	}
 	UpdateProjectilePosition();
-	UE_LOG(LogTemp, Display, TEXT("Set Projectile Direction: %s"), *CurrentAimingValue.ToString());
+	OnAiming(CurrentAimingValue);
 }
 
 void AAFurieuxOiseauxCharacter::ManageForce(const FInputActionInstance& Instance)
@@ -74,11 +75,11 @@ void AAFurieuxOiseauxCharacter::ManageForce(const FInputActionInstance& Instance
 	{
 		return;
 	}
-
-	
-	
+	float inputValue = Instance.GetValue().Get<float>();
+	CurrentForceValue += inputValue * GetWorld()->GetDeltaSeconds() * UpdateForceSpeed;
+	CurrentForceValue = FMath::Clamp(CurrentForceValue, 0,1);
 	UpdateProjectilePosition();
-	UE_LOG(LogTemp, Display, TEXT("Managing Force"));
+	OnManageForce(CurrentForceValue);
 }
 
 void AAFurieuxOiseauxCharacter::LaunchProjectile(const FInputActionInstance& Instance)
@@ -87,8 +88,13 @@ void AAFurieuxOiseauxCharacter::LaunchProjectile(const FInputActionInstance& Ins
 	{
 		return;
 	}
+	IProjectileInterface* Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile);
+	if (Projectile)
+	{
+		Projectile->LaunchProjectile(GetProjectileDirection(), CurrentForceValue);
+	}
 
-	UE_LOG(LogTemp, Display, TEXT("Launching Projectile"));
+	OnLaunchProjectile();
 }
 
 void AAFurieuxOiseauxCharacter::StartAiming()
@@ -113,8 +119,21 @@ void AAFurieuxOiseauxCharacter::StopAiming()
 void AAFurieuxOiseauxCharacter::UpdateProjectilePosition()
 {
 	FVector newLocation = ProjectileInstantiationPosition->GetComponentLocation();
-	newLocation.Y += CurrentAimingValue.X * ProjectileRangeRadiusPosition;
-	newLocation.Z += CurrentAimingValue.Y * ProjectileRangeRadiusPosition;
+	float zAxis = FMath::Square(1 - (CurrentAimingValue.X *CurrentAimingValue.X + CurrentAimingValue.Y *CurrentAimingValue.Y));
+	FVector AddingLocationVector = FVector(-zAxis, CurrentAimingValue.X, CurrentAimingValue.Y );
+
+	newLocation += AddingLocationVector * CurrentForceValue * ProjectileRangeRadiusPosition;
 	CurrentAimingProjectile->SetActorLocation(newLocation);
+	if (auto Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile))
+	{
+		Projectile->PredictTrajectory(GetProjectileDirection(), CurrentForceValue);
+	}
+}
+
+FVector AAFurieuxOiseauxCharacter::GetProjectileDirection()
+{
+	float zAxis = FMath::Square(1 - (CurrentAimingValue.X *CurrentAimingValue.X + CurrentAimingValue.Y *CurrentAimingValue.Y));
+	FVector Result = FVector(zAxis, -CurrentAimingValue.X, -CurrentAimingValue.Y );
+	return Result;
 }
 

@@ -10,17 +10,18 @@
  * 
  */
 UINTERFACE(MinimalAPI, Blueprintable)
-class UMyInterface : public UInterface
+class UProjectileInterface : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class IMyInterface
+class IProjectileInterface
 {
 	GENERATED_BODY()
 
 public:
-	
+	void LaunchProjectile(FVector DirectionValue, float ForceValue);
+	void PredictTrajectory(FVector DirectionValue, float ForceValue);
 	
 };
 
