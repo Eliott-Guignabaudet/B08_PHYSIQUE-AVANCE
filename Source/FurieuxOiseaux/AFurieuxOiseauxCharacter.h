@@ -75,6 +75,8 @@ public:
 	void OnAiming(FVector2D AimingValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnManageForce(float ForceValue);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLaunchProjectile();
 	
 	void StartAiming();
 	void StopAiming();

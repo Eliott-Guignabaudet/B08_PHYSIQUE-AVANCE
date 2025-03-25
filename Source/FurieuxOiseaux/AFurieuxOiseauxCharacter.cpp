@@ -64,12 +64,6 @@ void AAFurieuxOiseauxCharacter::Aiming(const FInputActionInstance& Instance)
 		CurrentAimingValue.Normalize();
 	}
 	UpdateProjectilePosition();
-	UE_LOG(LogTemp, Display, TEXT("Set Projectile Direction: %s"), *CurrentAimingValue.ToString());
-	if (GEngine)
-	{
-		auto message= FString::Printf(TEXT("Set Projectile Direction: %s"), *CurrentAimingValue.ToString());
-		GEngine->AddOnScreenDebugMessage(654, 2.0f, FColor::Cyan,message);
-	}
 	OnAiming(CurrentAimingValue);
 }
 
@@ -83,7 +77,6 @@ void AAFurieuxOiseauxCharacter::ManageForce(const FInputActionInstance& Instance
 	CurrentForceValue += inputValue * GetWorld()->GetDeltaSeconds() * UpdateForceSpeed;
 	CurrentForceValue = FMath::Clamp(CurrentForceValue, 0,1);
 	UpdateProjectilePosition();
-	UE_LOG(LogTemp, Display, TEXT("Managing Force"));
 	OnManageForce(CurrentForceValue);
 }
 
@@ -94,7 +87,7 @@ void AAFurieuxOiseauxCharacter::LaunchProjectile(const FInputActionInstance& Ins
 		return;
 	}
 
-	UE_LOG(LogTemp, Display, TEXT("Launching Projectile"));
+	OnLaunchProjectile();
 }
 
 void AAFurieuxOiseauxCharacter::StartAiming()
