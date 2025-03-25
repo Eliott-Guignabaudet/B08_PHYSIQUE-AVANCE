@@ -3,18 +3,60 @@
 
 #include "FurieuxOiseauxPlayerController.h"
 #include "EnhancedInputSubsystems.h"
+#include "ProjectilePawn.h"
 
-void AFurieuxOiseauxPlayerController::OnPossess(APawn* InPawn)
+void AFurieuxOiseauxPlayerController::AddMappingContextToPlayer(TObjectPtr<UInputMappingContext> Context)
 {
-	Super::OnPossess(InPawn);
 	if (ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 		{
-			if (!GameplayInputMapping.IsNull())
+			if (GameplayInputMapping)
 			{
-				InputSystem->AddMappingContext(GameplayInputMapping, 0);
+				InputSystem->AddMappingContext(Context, 0);
 			}
 		}
+	}
+}
+
+
+
+void AFurieuxOiseauxPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	auto CharacterCasted = Cast<AAFurieuxOiseauxCharacter>(InPawn);
+	if ( CharacterCasted)
+	{
+		MainCharacter = CharacterCasted;
+		AddMappingContextToPlayer(GameplayInputMapping);
+		AddMappingContextToPlayer(AdditionalProjectileInputMapping);
+		MainCharacter->OnLaunchProejectileDelegate.AddUObject(this, &AFurieuxOiseauxPlayerController::OnLaunchProjectileCallback);
+	}
+	
+
+	
+}
+
+void AFurieuxOiseauxPlayerController::OnLaunchProjectileCallback(TObjectPtr<AActor> Projectile)
+{
+	TObjectPtr<AProjectilePawn> ProjectileCasted = Cast<AProjectilePawn>(Projectile);
+	if (ProjectileCasted)
+	{
+		UnPossess();
+		Possess(ProjectileCasted);
+		ProjectileCasted->OnFinishRunDelegate.AddUObject(this, &AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback);
+	}
+}
+
+void AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback(TObjectPtr<AProjectilePawn> Projectile)
+{
+	if (GetPawn() != Projectile)
+	{
+		return;
+	}
+	UnPossess();
+	if (MainCharacter)
+	{
+		Possess(MainCharacter);
 	}
 }

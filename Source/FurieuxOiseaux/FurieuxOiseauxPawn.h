@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "InputAction.h"
 #include "GameFramework/Character.h"
-#include "AFurieuxOiseauxCharacter.generated.h"
+#include "FurieuxOiseauxPawn.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnLaunchDelegate, TObjectPtr<AActor>)
 
@@ -13,7 +13,7 @@ class UCameraComponent;
 class UArrowComponent;
 
 UCLASS()
-class FURIEUXOISEAUX_API AAFurieuxOiseauxCharacter : public ACharacter
+class FURIEUXOISEAUX_API AFurieuxOiseauxPawn : public APawn
 {
 	GENERATED_BODY()
 
@@ -57,7 +57,7 @@ private:
 	
 public:
 	// Sets default values for this character's properties
-	AAFurieuxOiseauxCharacter();
+	AFurieuxOiseauxPawn();
 
 
 protected:

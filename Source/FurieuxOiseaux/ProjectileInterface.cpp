@@ -3,7 +3,7 @@
 
 #include "ProjectileInterface.h"
 
-void IProjectileInterface::LaunchProjectile(FVector DirectionValue, float ForceValue)
+void IProjectileInterface::Launch(FVector DirectionValue, float ForceValue)
 {
 }
 
