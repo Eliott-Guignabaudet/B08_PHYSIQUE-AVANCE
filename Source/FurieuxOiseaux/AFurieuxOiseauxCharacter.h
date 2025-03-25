@@ -8,7 +8,6 @@
 #include "Components/ArrowComponent.h"
 #include "GameFramework/Character.h"
 #include "AFurieuxOiseauxCharacter.generated.h"
-
 UCLASS()
 class FURIEUXOISEAUX_API AAFurieuxOiseauxCharacter : public ACharacter
 {
@@ -30,6 +29,8 @@ private:
 	TSubclassOf<AActor> ProjectileClass;
 	UPROPERTY(EditDefaultsOnly)
 	float ProjectileRangeRadiusPosition;
+	UPROPERTY(EditDefaultsOnly)
+	float ProjectileMaxBackDistance;
 	
 #pragma endregion
 
@@ -48,6 +49,7 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UInputAction> LaunchingInputAcion;
 #pragma endregion
+
 	
 public:
 	// Sets default values for this character's properties
@@ -68,8 +70,12 @@ public:
 	void Aiming(const FInputActionInstance& Instance);
 	void ManageForce(const FInputActionInstance& Instance);
 	void LaunchProjectile(const FInputActionInstance& Instance);
-	
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnAiming(FVector2D AimingValue);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnManageForce(float ForceValue);
+	
 	void StartAiming();
 	void StopAiming();
 

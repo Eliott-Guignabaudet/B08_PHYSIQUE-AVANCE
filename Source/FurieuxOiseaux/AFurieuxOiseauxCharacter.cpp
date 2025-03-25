@@ -7,7 +7,6 @@
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 #include "UniversalObjectLocators/UniversalObjectLocatorUtils.h"
-
 // Sets default values
 AAFurieuxOiseauxCharacter::AAFurieuxOiseauxCharacter()
 {
@@ -66,6 +65,12 @@ void AAFurieuxOiseauxCharacter::Aiming(const FInputActionInstance& Instance)
 	}
 	UpdateProjectilePosition();
 	UE_LOG(LogTemp, Display, TEXT("Set Projectile Direction: %s"), *CurrentAimingValue.ToString());
+	if (GEngine)
+	{
+		auto message= FString::Printf(TEXT("Set Projectile Direction: %s"), *CurrentAimingValue.ToString());
+		GEngine->AddOnScreenDebugMessage(654, 2.0f, FColor::Cyan,message);
+	}
+	OnAiming(CurrentAimingValue);
 }
 
 void AAFurieuxOiseauxCharacter::ManageForce(const FInputActionInstance& Instance)
@@ -74,11 +79,12 @@ void AAFurieuxOiseauxCharacter::ManageForce(const FInputActionInstance& Instance
 	{
 		return;
 	}
-
-	
-	
+	float inputValue = Instance.GetValue().Get<float>();
+	CurrentForceValue += inputValue * GetWorld()->GetDeltaSeconds() * UpdateForceSpeed;
+	CurrentForceValue = FMath::Clamp(CurrentForceValue, 0,1);
 	UpdateProjectilePosition();
 	UE_LOG(LogTemp, Display, TEXT("Managing Force"));
+	OnManageForce(CurrentForceValue);
 }
 
 void AAFurieuxOiseauxCharacter::LaunchProjectile(const FInputActionInstance& Instance)
@@ -115,6 +121,7 @@ void AAFurieuxOiseauxCharacter::UpdateProjectilePosition()
 	FVector newLocation = ProjectileInstantiationPosition->GetComponentLocation();
 	newLocation.Y += CurrentAimingValue.X * ProjectileRangeRadiusPosition;
 	newLocation.Z += CurrentAimingValue.Y * ProjectileRangeRadiusPosition;
+	newLocation.X -= CurrentForceValue * ProjectileMaxBackDistance;
 	CurrentAimingProjectile->SetActorLocation(newLocation);
 }
 
