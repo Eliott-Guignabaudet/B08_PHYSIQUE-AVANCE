@@ -112,9 +112,13 @@ void AAFurieuxOiseauxCharacter::StopAiming()
 void AAFurieuxOiseauxCharacter::UpdateProjectilePosition()
 {
 	FVector newLocation = ProjectileInstantiationPosition->GetComponentLocation();
-	newLocation.Y += CurrentAimingValue.X * ProjectileRangeRadiusPosition;
-	newLocation.Z += CurrentAimingValue.Y * ProjectileRangeRadiusPosition;
-	newLocation.X -= CurrentForceValue * ProjectileMaxBackDistance;
+	float zAxis = FMath::Square(1 - (CurrentAimingValue.X *CurrentAimingValue.X + CurrentAimingValue.Y *CurrentAimingValue.Y));
+	FVector AddingLocationVector = FVector(-zAxis, CurrentAimingValue.X, CurrentAimingValue.Y );
+
+	newLocation += AddingLocationVector * CurrentForceValue * ProjectileRangeRadiusPosition;
+	// newLocation.Y += CurrentAimingValue.X * ProjectileRangeRadiusPosition;
+	// newLocation.Z += CurrentAimingValue.Y * ProjectileRangeRadiusPosition;
+	// newLocation.X -= CurrentForceValue * ProjectileMaxBackDistance;
 	CurrentAimingProjectile->SetActorLocation(newLocation);
 }
 
