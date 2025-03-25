@@ -11,7 +11,7 @@ void AFurieuxOiseauxPlayerController::AddMappingContextToPlayer(TObjectPtr<UInpu
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 		{
-			if (GameplayInputMapping)
+			if (Context)
 			{
 				InputSystem->AddMappingContext(Context, 0);
 			}
@@ -24,7 +24,7 @@ void AFurieuxOiseauxPlayerController::AddMappingContextToPlayer(TObjectPtr<UInpu
 void AFurieuxOiseauxPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	auto CharacterCasted = Cast<AAFurieuxOiseauxCharacter>(InPawn);
+	auto CharacterCasted = Cast<AFurieuxOiseauxPawn>(InPawn);
 	if ( CharacterCasted)
 	{
 		MainCharacter = CharacterCasted;
@@ -33,7 +33,7 @@ void AFurieuxOiseauxPlayerController::OnPossess(APawn* InPawn)
 		MainCharacter->OnLaunchProejectileDelegate.AddUObject(this, &AFurieuxOiseauxPlayerController::OnLaunchProjectileCallback);
 	}
 	
-
+	UE_LOG(LogTemp, Display, TEXT("On Possess pawn"));
 	
 }
 

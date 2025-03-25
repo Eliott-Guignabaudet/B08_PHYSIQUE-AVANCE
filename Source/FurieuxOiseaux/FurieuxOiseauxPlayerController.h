@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AFurieuxOiseauxCharacter.h"
+#include "FurieuxOiseauxPawn.h"
 #include "EnhancedInputSubsystemInterface.h"
 #include "ProjectilePawn.h"
 #include "GameFramework/PlayerController.h"
@@ -18,9 +18,8 @@ class FURIEUXOISEAUX_API AFurieuxOiseauxPlayerController : public APlayerControl
 	GENERATED_BODY()
 private:
 	void AddMappingContextToPlayer(TObjectPtr<UInputMappingContext> Context);
-	void AddMappingContextsToPlayer(TArray<TObjectPtr<UInputMappingContext>> Contexts);
 protected:
-	TObjectPtr<AAFurieuxOiseauxCharacter> MainCharacter;
+	TObjectPtr<AFurieuxOiseauxPawn> MainCharacter;
 	UPROPERTY(EditAnywhere,Category="Input")
 	TObjectPtr<UInputMappingContext> GameplayInputMapping;
 	UPROPERTY(EditAnywhere,Category="Input")

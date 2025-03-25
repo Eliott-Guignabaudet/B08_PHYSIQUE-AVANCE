@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "UniversalObjectLocators/UniversalObjectLocatorUtils.h"
 
 // Sets default values
@@ -126,10 +127,14 @@ void AFurieuxOiseauxPawn::UpdateProjectilePosition()
 
 	newLocation += AddingLocationVector * CurrentForceValue * ProjectileRangeRadiusPosition;
 	CurrentAimingProjectile->SetActorLocation(newLocation);
+	
+	FRotator newrot = UKismetMathLibrary::FindLookAtRotation(ProjectileInstantiationPosition->GetComponentLocation(), newLocation);
+	CurrentAimingProjectile->SetActorRotation( newrot);
 	if (auto Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile))
 	{
 		Projectile->PredictTrajectory(GetProjectileDirection(), CurrentForceValue);
 	}
+	
 }
 
 FVector AFurieuxOiseauxPawn::GetProjectileDirection()
