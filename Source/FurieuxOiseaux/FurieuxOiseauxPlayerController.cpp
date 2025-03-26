@@ -31,6 +31,7 @@ void AFurieuxOiseauxPlayerController::OnPossess(APawn* InPawn)
 		AddMappingContextToPlayer(GameplayInputMapping);
 		AddMappingContextToPlayer(AdditionalProjectileInputMapping);
 		MainCharacter->OnLaunchProejectileDelegate.AddUObject(this, &AFurieuxOiseauxPlayerController::OnLaunchProjectileCallback);
+		return;
 	}
 	
 	UE_LOG(LogTemp, Display, TEXT("On Possess pawn"));
