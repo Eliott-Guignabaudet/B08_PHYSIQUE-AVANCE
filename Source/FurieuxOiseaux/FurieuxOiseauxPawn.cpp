@@ -15,7 +15,8 @@ AFurieuxOiseauxPawn::AFurieuxOiseauxPawn()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
+	SceneComponentRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
+	RootComponent = SceneComponentRoot;
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
 	CameraComponent->SetupAttachment(RootComponent);
 	ProjectileInstantiationPosition = CreateDefaultSubobject<UArrowComponent>(TEXT("ProjectileSpawnPoint"));
@@ -29,6 +30,11 @@ void AFurieuxOiseauxPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	StartAiming();
+	FVector spawnLocation = ProjectileInstantiationPosition->GetComponentLocation();
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,"Spawn location: " + spawnLocation.ToString());
+	}
 }
 
 
@@ -128,8 +134,8 @@ void AFurieuxOiseauxPawn::UpdateProjectilePosition()
 	newLocation += AddingLocationVector * CurrentForceValue * ProjectileRangeRadiusPosition;
 	CurrentAimingProjectile->SetActorLocation(newLocation);
 	
-	FRotator newrot = UKismetMathLibrary::FindLookAtRotation(ProjectileInstantiationPosition->GetComponentLocation(), newLocation);
-	CurrentAimingProjectile->SetActorRotation( newrot);
+	//FRotator newrot = UKismetMathLibrary::FindLookAtRotation(ProjectileInstantiationPosition->GetComponentLocation(), newLocation);
+	//CurrentAimingProjectile->SetActorRotation( newrot);
 	if (auto Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile))
 	{
 		Projectile->PredictTrajectory(GetProjectileDirection(), CurrentForceValue);

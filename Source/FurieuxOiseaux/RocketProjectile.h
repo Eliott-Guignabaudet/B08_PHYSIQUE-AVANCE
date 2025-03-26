@@ -7,7 +7,7 @@
 #include "RocketProjectile.generated.h"
 
 class UCapsuleComponent;
-
+class USceneComponent;
 
 UCLASS()
 class FURIEUXOISEAUX_API ARocketProjectile : public AProjectilePawn
@@ -19,6 +19,8 @@ public:
 	ARocketProjectile();
 	UPROPERTY(Category=Pawn, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UCapsuleComponent> CapsuleComponent;
+	UPROPERTY(Category=Pawn, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<USceneComponent> SceneComponentRoot;
 
 	UPROPERTY(EditAnywhere)
 	float ForceMultiplier;

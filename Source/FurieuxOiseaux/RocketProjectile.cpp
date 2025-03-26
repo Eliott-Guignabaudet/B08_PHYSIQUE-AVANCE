@@ -12,9 +12,11 @@ ARocketProjectile::ARocketProjectile()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
+	SceneComponentRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
+	SceneComponentRoot->SetupAttachment(RootComponent);
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
-	CapsuleComponent->SetupAttachment(RootComponent);
+	CapsuleComponent->SetupAttachment(SceneComponentRoot);
+	
 }
 
 // Called when the game starts or when spawned

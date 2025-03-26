@@ -43,6 +43,8 @@ private:
 	TObjectPtr<UArrowComponent> ProjectileInstantiationPosition;
 	UPROPERTY(Category=Character,  VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> CameraComponent;
+	UPROPERTY(Category="Pawn", VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<USceneComponent> SceneComponentRoot;
 #pragma endregion
 
 #pragma region Input Actions
