@@ -23,7 +23,6 @@ ARocketProjectile::ARocketProjectile()
 void ARocketProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ARocketProjectile::ProcessLaunch(FVector DirectionValue, float ForceValue)
