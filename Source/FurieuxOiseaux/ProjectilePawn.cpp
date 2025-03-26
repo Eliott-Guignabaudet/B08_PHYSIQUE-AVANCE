@@ -18,6 +18,10 @@ void AProjectilePawn::BeginPlay()
 	
 }
 
+void AProjectilePawn::ProcessLaunch(FVector DirectionValue, float ForceValue)
+{
+}
+
 // Called every frame
 void AProjectilePawn::Tick(float DeltaTime)
 {

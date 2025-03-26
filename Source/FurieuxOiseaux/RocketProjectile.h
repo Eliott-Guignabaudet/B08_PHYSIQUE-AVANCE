@@ -8,19 +8,25 @@
 
 class UCapsuleComponent;
 class USceneComponent;
+class UFloatingPawnMovement;
 
 UCLASS()
 class FURIEUXOISEAUX_API ARocketProjectile : public AProjectilePawn
 {
 	GENERATED_BODY()
+private:
+	bool bIsLaunched;
 
+	
 public:
 	// Sets default values for this pawn's properties
 	ARocketProjectile();
 	UPROPERTY(Category=Pawn, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
-	TObjectPtr<UCapsuleComponent> CapsuleComponent;
+	TObjectPtr<UCapsuleComponent> SecondCapsuleComponent;
 	UPROPERTY(Category=Pawn, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> SceneComponentRoot;
+	UPROPERTY(Category=Pawn, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UFloatingPawnMovement> FloatingPawnMovement;
 
 	UPROPERTY(EditAnywhere)
 	float ForceMultiplier;
@@ -39,4 +45,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void PredictTrajectory(FVector DirectionValue, float ForceValue) override;
+
+	virtual UPawnMovementComponent* GetMovementComponent() const override;
 };

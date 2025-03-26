@@ -25,7 +25,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void ProcessLaunch(FVector DirectionValue, float ForceValue){}
+	virtual void ProcessLaunch(FVector DirectionValue, float ForceValue);
 	
 public:
 	// Called every frame
@@ -34,5 +34,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	void Launch(FVector DirectionValue, float ForceValue) override;
+	virtual void Launch(FVector DirectionValue, float ForceValue) override;
 };
