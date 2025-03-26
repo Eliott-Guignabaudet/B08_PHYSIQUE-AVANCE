@@ -29,7 +29,7 @@ private:
 	float AimingSpeed;
 	UPROPERTY(EditAnywhere)
 	float UpdateForceSpeed;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> ProjectileClass;
 	UPROPERTY(EditDefaultsOnly)
 	float ProjectileRangeRadiusPosition;
