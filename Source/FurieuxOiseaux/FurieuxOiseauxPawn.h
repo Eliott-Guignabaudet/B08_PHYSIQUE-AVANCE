@@ -2,15 +2,18 @@
 
 #pragma once
 
-#include "ProjectileInterface.h"
 #include "CoreMinimal.h"
 #include "InputAction.h"
-#include "Camera/CameraComponent.h"
-#include "Components/ArrowComponent.h"
 #include "GameFramework/Character.h"
-#include "AFurieuxOiseauxCharacter.generated.h"
+#include "FurieuxOiseauxPawn.generated.h"
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnLaunchDelegate, TObjectPtr<AActor>)
+
+class UCameraComponent;
+class UArrowComponent;
+
 UCLASS()
-class FURIEUXOISEAUX_API AAFurieuxOiseauxCharacter : public ACharacter
+class FURIEUXOISEAUX_API AFurieuxOiseauxPawn : public APawn
 {
 	GENERATED_BODY()
 
@@ -40,6 +43,8 @@ private:
 	TObjectPtr<UArrowComponent> ProjectileInstantiationPosition;
 	UPROPERTY(Category=Character,  VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> CameraComponent;
+	UPROPERTY(Category="Pawn", VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<USceneComponent> SceneComponentRoot;
 #pragma endregion
 
 #pragma region Input Actions
@@ -54,7 +59,7 @@ private:
 	
 public:
 	// Sets default values for this character's properties
-	AAFurieuxOiseauxCharacter();
+	AFurieuxOiseauxPawn();
 
 
 protected:
@@ -77,7 +82,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnManageForce(float ForceValue);
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnLaunchProjectile();
+	void OnLaunchProjectile(AActor* LaunchedProjectile);
+
+	
+	FOnLaunchDelegate OnLaunchProejectileDelegate;
 	
 	void StartAiming();
 	void StopAiming();

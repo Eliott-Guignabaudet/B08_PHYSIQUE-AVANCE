@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "ProjectileInterface.generated.h"
 
 /**
@@ -19,9 +18,10 @@ class IProjectileInterface
 {
 	GENERATED_BODY()
 
+
 public:
-	void LaunchProjectile(FVector DirectionValue, float ForceValue);
-	void PredictTrajectory(FVector DirectionValue, float ForceValue);
+	virtual void Launch(FVector DirectionValue, float ForceValue);
+	virtual void PredictTrajectory(FVector DirectionValue, float ForceValue);
 	
 };
 

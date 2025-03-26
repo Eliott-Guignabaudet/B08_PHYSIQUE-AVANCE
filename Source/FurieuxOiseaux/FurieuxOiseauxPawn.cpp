@@ -1,19 +1,22 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AFurieuxOiseauxCharacter.h"
+#include "FurieuxOiseauxPawn.h"
 #include "EnhancedInputComponent.h"
 #include "ProjectileInterface.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "UniversalObjectLocators/UniversalObjectLocatorUtils.h"
 
 // Sets default values
-AAFurieuxOiseauxCharacter::AAFurieuxOiseauxCharacter()
+AFurieuxOiseauxPawn::AFurieuxOiseauxPawn()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	SceneComponentRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
+	RootComponent = SceneComponentRoot;
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
 	CameraComponent->SetupAttachment(RootComponent);
 	ProjectileInstantiationPosition = CreateDefaultSubobject<UArrowComponent>(TEXT("ProjectileSpawnPoint"));
@@ -23,31 +26,36 @@ AAFurieuxOiseauxCharacter::AAFurieuxOiseauxCharacter()
 }
 
 // Called when the game starts or when spawned
-void AAFurieuxOiseauxCharacter::BeginPlay()
+void AFurieuxOiseauxPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	StartAiming();
+	FVector spawnLocation = ProjectileInstantiationPosition->GetComponentLocation();
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,"Spawn location: " + spawnLocation.ToString());
+	}
 }
 
 
 // Called every frame
-void AAFurieuxOiseauxCharacter::Tick(float DeltaTime)
+void AFurieuxOiseauxPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
 // Called to bind functionality to input
-void AAFurieuxOiseauxCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AFurieuxOiseauxPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	Input->BindAction(AimingInputAction, ETriggerEvent::Triggered, this, &AAFurieuxOiseauxCharacter::Aiming);
-	Input->BindAction(UpdateForceInputAction, ETriggerEvent::Triggered, this, &AAFurieuxOiseauxCharacter::ManageForce);
-	Input->BindAction(LaunchingInputAcion, ETriggerEvent::Completed, this, &AAFurieuxOiseauxCharacter::LaunchProjectile);
+	Input->BindAction(AimingInputAction, ETriggerEvent::Triggered, this, &AFurieuxOiseauxPawn::Aiming);
+	Input->BindAction(UpdateForceInputAction, ETriggerEvent::Triggered, this, &AFurieuxOiseauxPawn::ManageForce);
+	Input->BindAction(LaunchingInputAcion, ETriggerEvent::Completed, this, &AFurieuxOiseauxPawn::LaunchProjectile);
 }
 
-void AAFurieuxOiseauxCharacter::Aiming(const FInputActionInstance& Instance)
+void AFurieuxOiseauxPawn::Aiming(const FInputActionInstance& Instance)
 {
 	if (!bIsAiming)
 	{
@@ -69,7 +77,7 @@ void AAFurieuxOiseauxCharacter::Aiming(const FInputActionInstance& Instance)
 	OnAiming(CurrentAimingValue);
 }
 
-void AAFurieuxOiseauxCharacter::ManageForce(const FInputActionInstance& Instance)
+void AFurieuxOiseauxPawn::ManageForce(const FInputActionInstance& Instance)
 {
 	if (!bIsAiming)
 	{
@@ -82,7 +90,7 @@ void AAFurieuxOiseauxCharacter::ManageForce(const FInputActionInstance& Instance
 	OnManageForce(CurrentForceValue);
 }
 
-void AAFurieuxOiseauxCharacter::LaunchProjectile(const FInputActionInstance& Instance)
+void AFurieuxOiseauxPawn::LaunchProjectile(const FInputActionInstance& Instance)
 {
 	if (!bIsAiming)
 	{
@@ -91,13 +99,14 @@ void AAFurieuxOiseauxCharacter::LaunchProjectile(const FInputActionInstance& Ins
 	IProjectileInterface* Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile);
 	if (Projectile)
 	{
-		Projectile->LaunchProjectile(GetProjectileDirection(), CurrentForceValue);
+		Projectile->Launch(GetProjectileDirection(), CurrentForceValue);
 	}
 
-	OnLaunchProjectile();
+	OnLaunchProjectile(CurrentAimingProjectile);
+	OnLaunchProejectileDelegate.Broadcast(CurrentAimingProjectile);
 }
 
-void AAFurieuxOiseauxCharacter::StartAiming()
+void AFurieuxOiseauxPawn::StartAiming()
 {
 	bIsAiming = true;
 	if (ProjectileClass)
@@ -107,7 +116,7 @@ void AAFurieuxOiseauxCharacter::StartAiming()
 	}
 }
 
-void AAFurieuxOiseauxCharacter::StopAiming()
+void AFurieuxOiseauxPawn::StopAiming()
 {
 	bIsAiming = false;
 	if (true)
@@ -116,7 +125,7 @@ void AAFurieuxOiseauxCharacter::StopAiming()
 	}
 }
 
-void AAFurieuxOiseauxCharacter::UpdateProjectilePosition()
+void AFurieuxOiseauxPawn::UpdateProjectilePosition()
 {
 	FVector newLocation = ProjectileInstantiationPosition->GetComponentLocation();
 	float zAxis = FMath::Square(1 - (CurrentAimingValue.X *CurrentAimingValue.X + CurrentAimingValue.Y *CurrentAimingValue.Y));
@@ -124,13 +133,17 @@ void AAFurieuxOiseauxCharacter::UpdateProjectilePosition()
 
 	newLocation += AddingLocationVector * CurrentForceValue * ProjectileRangeRadiusPosition;
 	CurrentAimingProjectile->SetActorLocation(newLocation);
+	
+	//FRotator newrot = UKismetMathLibrary::FindLookAtRotation(ProjectileInstantiationPosition->GetComponentLocation(), newLocation);
+	//CurrentAimingProjectile->SetActorRotation( newrot);
 	if (auto Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile))
 	{
 		Projectile->PredictTrajectory(GetProjectileDirection(), CurrentForceValue);
 	}
+	
 }
 
-FVector AAFurieuxOiseauxCharacter::GetProjectileDirection()
+FVector AFurieuxOiseauxPawn::GetProjectileDirection()
 {
 	float zAxis = FMath::Square(1 - (CurrentAimingValue.X *CurrentAimingValue.X + CurrentAimingValue.Y *CurrentAimingValue.Y));
 	FVector Result = FVector(zAxis, -CurrentAimingValue.X, -CurrentAimingValue.Y );

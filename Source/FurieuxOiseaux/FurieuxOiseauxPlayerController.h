@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FurieuxOiseauxPawn.h"
 #include "EnhancedInputSubsystemInterface.h"
+#include "ProjectilePawn.h"
 #include "GameFramework/PlayerController.h"
 #include "FurieuxOiseauxPlayerController.generated.h"
 
@@ -14,10 +16,18 @@ UCLASS()
 class FURIEUXOISEAUX_API AFurieuxOiseauxPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+private:
+	void AddMappingContextToPlayer(TObjectPtr<UInputMappingContext> Context);
 protected:
+	TObjectPtr<AFurieuxOiseauxPawn> MainCharacter;
 	UPROPERTY(EditAnywhere,Category="Input")
 	TObjectPtr<UInputMappingContext> GameplayInputMapping;
+	UPROPERTY(EditAnywhere,Category="Input")
+	TObjectPtr<UInputMappingContext> AdditionalProjectileInputMapping;
 public:
 	
 	virtual void OnPossess(APawn* InPawn) override;
+	
+	void OnLaunchProjectileCallback(TObjectPtr<AActor> Projectile);
+	void OnProjectilePawnFinishRunCallback(TObjectPtr<AProjectilePawn> Projectile);
 };
