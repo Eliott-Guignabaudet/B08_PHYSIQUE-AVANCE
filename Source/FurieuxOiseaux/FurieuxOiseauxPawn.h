@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "InputAction.h"
+#include "ProjectileInventory.h"
 #include "GameFramework/Character.h"
 #include "FurieuxOiseauxPawn.generated.h"
 
@@ -57,11 +58,14 @@ private:
 #pragma endregion
 
 	
+
 public:
 	// Sets default values for this character's properties
 	AFurieuxOiseauxPawn();
 
-
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UProjectileInventory> Inventory;
+	UINT CurrentProjectileIndex;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

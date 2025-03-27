@@ -4,6 +4,7 @@
 #include "FurieuxOiseauxPawn.h"
 #include "EnhancedInputComponent.h"
 #include "ProjectileInterface.h"
+#include "ProjectileInventory.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
@@ -14,6 +15,10 @@
 AFurieuxOiseauxPawn::AFurieuxOiseauxPawn()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	CurrentProjectileIndex = 0;
+	Inventory = NewObject<UProjectileInventory>();
+	Inventory->AddProjectile(FProjectileInventoryValue(ProjectileClass, 10));
+
 	PrimaryActorTick.bCanEverTick = true;
 	SceneComponentRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	RootComponent = SceneComponentRoot;
@@ -92,7 +97,7 @@ void AFurieuxOiseauxPawn::ManageForce(const FInputActionInstance& Instance)
 
 void AFurieuxOiseauxPawn::LaunchProjectile(const FInputActionInstance& Instance)
 {
-	if (!bIsAiming)
+	if (!bIsAiming || !Inventory->CanUseProjectileAtIndex(CurrentProjectileIndex))
 	{
 		return;
 	}
@@ -105,11 +110,29 @@ void AFurieuxOiseauxPawn::LaunchProjectile(const FInputActionInstance& Instance)
 
 	OnLaunchProjectile(CurrentAimingProjectile);
 	OnLaunchProejectileDelegate.Broadcast(CurrentAimingProjectile);
+	Inventory->UseProjectile(CurrentProjectileIndex);
 }
 
 void AFurieuxOiseauxPawn::StartAiming()
 {
 	bIsAiming = true;
+	if (Inventory)
+	{
+		auto classToInstantiate = Inventory->GetProjectileToInstantiateByIndex(CurrentProjectileIndex);
+		if (CurrentAimingProjectile)
+		{
+			CurrentAimingProjectile->Destroy();
+		}
+		if (classToInstantiate)
+		{
+			CurrentAimingProjectile =UE::UniversalObjectLocator::SpawnActorForLocator(GetWorld(), classToInstantiate, TEXT("Projectile"));
+			CurrentAimingProjectile->SetActorLocation(ProjectileInstantiationPosition->GetComponentLocation());
+			return;
+		}
+		
+	}
+
+	
 	if (ProjectileClass)
 	{
 		CurrentAimingProjectile =UE::UniversalObjectLocator::SpawnActorForLocator(GetWorld(), ProjectileClass, TEXT("Projectile"));
