@@ -65,7 +65,7 @@ void AFurieuxOiseauxPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	Input->BindAction(AimingInputAction, ETriggerEvent::Triggered, this, &AFurieuxOiseauxPawn::Aiming);
 	Input->BindAction(UpdateForceInputAction, ETriggerEvent::Triggered, this, &AFurieuxOiseauxPawn::ManageForce);
-	Input->BindAction(LaunchingInputAcion, ETriggerEvent::Completed, this, &AFurieuxOiseauxPawn::LaunchProjectile);
+	Input->BindAction(LaunchingInputAcion, ETriggerEvent::Started, this, &AFurieuxOiseauxPawn::LaunchProjectile);
 }
 
 void AFurieuxOiseauxPawn::Aiming(const FInputActionInstance& Instance)
