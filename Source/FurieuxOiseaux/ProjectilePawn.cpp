@@ -34,7 +34,7 @@ void AProjectilePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void AProjectilePawn::Launch(FVector DirectionValue, float ForceValue)
+void AProjectilePawn::Launch_Implementation(FVector DirectionValue, float ForceValue)
 {
 	ProcessLaunch(DirectionValue, ForceValue);
 	

@@ -45,11 +45,13 @@ void AFurieuxOiseauxPlayerController::OnLaunchProjectileCallback(TObjectPtr<AAct
 	{
 		UnPossess();
 		Possess(ProjectileCasted);
-		ProjectileCasted->OnFinishRunDelegate.AddUObject(this, &AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback);
+		ProjectileCasted->OnFinishRunDelegate.AddDynamic(this, &AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback);
+		return;
 	}
+	MainCharacter->StartAiming();
 }
 
-void AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback(TObjectPtr<AProjectilePawn> Projectile)
+void AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback(AProjectilePawn* Projectile)
 {
 	if (GetPawn() != Projectile)
 	{
@@ -59,5 +61,6 @@ void AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback(TObjectP
 	if (MainCharacter)
 	{
 		Possess(MainCharacter);
+		MainCharacter->StartAiming();
 	}
 }

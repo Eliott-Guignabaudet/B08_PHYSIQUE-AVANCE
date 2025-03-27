@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "InputAction.h"
+#include "ProjectileInventory.h"
 #include "GameFramework/Character.h"
 #include "FurieuxOiseauxPawn.generated.h"
 
@@ -17,9 +18,10 @@ class FURIEUXOISEAUX_API AFurieuxOiseauxPawn : public APawn
 {
 	GENERATED_BODY()
 
-private:
+protected:
 	FVector2D CurrentAimingValue;
 	float CurrentForceValue;
+	UPROPERTY(BlueprintReadWrite)
 	bool bIsAiming;
 	TObjectPtr<AActor> CurrentAimingProjectile;
 	
@@ -57,11 +59,16 @@ private:
 #pragma endregion
 
 	
+
 public:
 	// Sets default values for this character's properties
 	AFurieuxOiseauxPawn();
 
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UProjectileInventory> Inventory;
 
+	UPROPERTY(BlueprintReadWrite)
+	int CurrentProjectileIndex;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -92,7 +99,8 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FVector GetProjectileDirection();
-private:
+protected:
 	void UpdateProjectilePosition();
-	
+	UFUNCTION(BlueprintCallable)
+	void UpdateProjectile();
 };

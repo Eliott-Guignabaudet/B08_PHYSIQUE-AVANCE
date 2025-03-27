@@ -4,6 +4,7 @@
 #include "FurieuxOiseauxPawn.h"
 #include "EnhancedInputComponent.h"
 #include "ProjectileInterface.h"
+#include "ProjectileInventory.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
@@ -14,6 +15,8 @@
 AFurieuxOiseauxPawn::AFurieuxOiseauxPawn()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	CurrentProjectileIndex = 0;
+
 	PrimaryActorTick.bCanEverTick = true;
 	SceneComponentRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	RootComponent = SceneComponentRoot;
@@ -29,6 +32,9 @@ AFurieuxOiseauxPawn::AFurieuxOiseauxPawn()
 void AFurieuxOiseauxPawn::BeginPlay()
 {
 	Super::BeginPlay();
+	Inventory = NewObject<UProjectileInventory>();
+	Inventory->AddProjectile(FProjectileInventoryValue(ProjectileClass, 10));
+
 	StartAiming();
 	FVector spawnLocation = ProjectileInstantiationPosition->GetComponentLocation();
 	if (GEngine)
@@ -42,7 +48,13 @@ void AFurieuxOiseauxPawn::BeginPlay()
 void AFurieuxOiseauxPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if (bIsAiming)
+	{
+		if (auto Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile))
+		{
+			Projectile->Execute_PredictTrajectory(CurrentAimingProjectile, GetProjectileDirection(), CurrentForceValue);
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -64,14 +76,15 @@ void AFurieuxOiseauxPawn::Aiming(const FInputActionInstance& Instance)
 	FVector2D vectorValue = Instance.GetValue().Get<FVector2D>();
 	if (vectorValue.Length() > 1)
 	{
-		vectorValue.Normalize();
+		vectorValue.Normalize() ;
 	}
-
 	
 	CurrentAimingValue += vectorValue * GetWorld()->DeltaTimeSeconds * AimingSpeed;
-	if (CurrentAimingValue.Length() > 1)
+
+	if (CurrentAimingValue.Length() > 0.5)
 	{
-		CurrentAimingValue.Normalize();
+		CurrentAimingValue.Normalize() ;
+		CurrentAimingValue *= 0.5f;
 	}
 	UpdateProjectilePosition();
 	OnAiming(CurrentAimingValue);
@@ -85,24 +98,26 @@ void AFurieuxOiseauxPawn::ManageForce(const FInputActionInstance& Instance)
 	}
 	float inputValue = Instance.GetValue().Get<float>();
 	CurrentForceValue += inputValue * GetWorld()->GetDeltaSeconds() * UpdateForceSpeed;
-	CurrentForceValue = FMath::Clamp(CurrentForceValue, 0,1);
+	CurrentForceValue = FMath::Clamp(CurrentForceValue, 0.2,1);
 	UpdateProjectilePosition();
 	OnManageForce(CurrentForceValue);
 }
 
 void AFurieuxOiseauxPawn::LaunchProjectile(const FInputActionInstance& Instance)
 {
-	if (!bIsAiming)
+	if (!bIsAiming || !Inventory->CanUseProjectileAtIndex(CurrentProjectileIndex))
 	{
 		return;
 	}
 	IProjectileInterface* Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile);
 	if (Projectile)
 	{
-		Projectile->Launch(GetProjectileDirection(), CurrentForceValue);
+		Projectile->Execute_Launch(CurrentAimingProjectile,GetProjectileDirection(), CurrentForceValue);
 		UE_LOG(LogTemp, Display, TEXT("LaunchProjectile"));
 	}
 
+	StopAiming();
+	Inventory->UseProjectileByIndex(CurrentProjectileIndex);
 	OnLaunchProjectile(CurrentAimingProjectile);
 	OnLaunchProejectileDelegate.Broadcast(CurrentAimingProjectile);
 }
@@ -110,6 +125,23 @@ void AFurieuxOiseauxPawn::LaunchProjectile(const FInputActionInstance& Instance)
 void AFurieuxOiseauxPawn::StartAiming()
 {
 	bIsAiming = true;
+	if (Inventory)
+	{
+		auto classToInstantiate = Inventory->GetProjectileToInstantiateByIndex(CurrentProjectileIndex);
+		if (CurrentAimingProjectile)
+		{
+			CurrentAimingProjectile->Destroy();
+		}
+		if (classToInstantiate)
+		{
+			CurrentAimingProjectile =UE::UniversalObjectLocator::SpawnActorForLocator(GetWorld(), classToInstantiate, TEXT("Projectile"));
+			CurrentAimingProjectile->SetActorLocation(ProjectileInstantiationPosition->GetComponentLocation());
+			return;
+		}
+		
+	}
+
+	
 	if (ProjectileClass)
 	{
 		CurrentAimingProjectile =UE::UniversalObjectLocator::SpawnActorForLocator(GetWorld(), ProjectileClass, TEXT("Projectile"));
@@ -120,10 +152,7 @@ void AFurieuxOiseauxPawn::StartAiming()
 void AFurieuxOiseauxPawn::StopAiming()
 {
 	bIsAiming = false;
-	if (true)
-	{
-		
-	}
+	
 }
 
 void AFurieuxOiseauxPawn::UpdateProjectilePosition()
@@ -135,12 +164,25 @@ void AFurieuxOiseauxPawn::UpdateProjectilePosition()
 	newLocation += AddingLocationVector * CurrentForceValue * ProjectileRangeRadiusPosition;
 	CurrentAimingProjectile->SetActorLocation(newLocation);
 	
-	//CurrentAimingProjectile->SetActorRotation(GetProjectileDirection().Rotation());
+	CurrentAimingProjectile->SetActorRotation(GetProjectileDirection().Rotation());
 
-	if (auto Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile))
+	
+	
+}
+
+void AFurieuxOiseauxPawn::UpdateProjectile()
+{
+	auto newProjectileClass = Inventory->GetProjectileToInstantiateByIndex(CurrentProjectileIndex);
+	if (newProjectileClass == CurrentAimingProjectile.GetClass())
 	{
-		Projectile->PredictTrajectory(GetProjectileDirection(), CurrentForceValue);
+		return;
 	}
+	
+
+	CurrentAimingProjectile->Destroy();
+	CurrentAimingProjectile =UE::UniversalObjectLocator::SpawnActorForLocator(GetWorld(), newProjectileClass, TEXT("Projectile"));
+	CurrentAimingProjectile->SetActorLocation(ProjectileInstantiationPosition->GetComponentLocation());
+	UpdateProjectilePosition();
 	
 }
 

@@ -29,5 +29,6 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 	
 	void OnLaunchProjectileCallback(TObjectPtr<AActor> Projectile);
-	void OnProjectilePawnFinishRunCallback(TObjectPtr<AProjectilePawn> Projectile);
+	UFUNCTION()
+	void OnProjectilePawnFinishRunCallback(AProjectilePawn* Projectile);
 };
