@@ -3,15 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "NiagaraComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/Actor.h"
-#include "GameFramework/ProjectileMovementComponent.h"
+#include "NiagaraSystem.h"
 #include "AProjectile.generated.h"
-
-class USphereComponent;
-class UProjectileMovementComponent;
-class USoundBase;
 
 UCLASS()
 class FURIEUXOISEAUX_API AAProjectile : public AActor
@@ -24,22 +19,27 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-public:
-	// Mesh
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
-	UStaticMeshComponent* MeshComponent;
+	// Root
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USceneComponent* RootScene;
 	
 	// Collider
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile")
 	USphereComponent* CollisionComponent;
+	
+	// Mesh
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
+	UStaticMeshComponent* MeshComponent;
 
-	// Movement
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
-	UProjectileMovementComponent* MovementComponent;
-
-	// Impact Sound
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
-	USoundBase* ImpactSound;
+	// Niagara
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	UNiagaraSystem* NiagaraSystem;
+	
+public:
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
+			   UPrimitiveComponent* OtherComponent, FVector NormalImpulse, 
+			   const FHitResult& Hit);
+	
+	void SpawnExplosionVFX();
 };

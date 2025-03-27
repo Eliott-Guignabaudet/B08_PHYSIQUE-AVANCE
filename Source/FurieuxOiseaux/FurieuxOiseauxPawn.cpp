@@ -100,6 +100,7 @@ void AFurieuxOiseauxPawn::LaunchProjectile(const FInputActionInstance& Instance)
 	if (Projectile)
 	{
 		Projectile->Launch(GetProjectileDirection(), CurrentForceValue);
+		UE_LOG(LogTemp, Display, TEXT("LaunchProjectile"));
 	}
 
 	OnLaunchProjectile(CurrentAimingProjectile);
@@ -134,8 +135,8 @@ void AFurieuxOiseauxPawn::UpdateProjectilePosition()
 	newLocation += AddingLocationVector * CurrentForceValue * ProjectileRangeRadiusPosition;
 	CurrentAimingProjectile->SetActorLocation(newLocation);
 	
-	//FRotator newrot = UKismetMathLibrary::FindLookAtRotation(ProjectileInstantiationPosition->GetComponentLocation(), newLocation);
-	//CurrentAimingProjectile->SetActorRotation( newrot);
+	//CurrentAimingProjectile->SetActorRotation(GetProjectileDirection().Rotation());
+
 	if (auto Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile))
 	{
 		Projectile->PredictTrajectory(GetProjectileDirection(), CurrentForceValue);

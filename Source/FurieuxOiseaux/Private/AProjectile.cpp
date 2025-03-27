@@ -2,40 +2,29 @@
 
 #include "AProjectile.h"
 
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
-#include "Kismet/GameplayStatics.h"
+#include "Components/StaticMeshComponent.h"
+
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 AAProjectile::AAProjectile()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	RootScene = CreateDefaultSubobject<USceneComponent>(TEXT("RootSceneComponent"));
+	RootComponent = RootScene;
 	
-	// Création du composant de collision
-	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
-	CollisionComponent->InitSphereRadius(5.0f);
-	CollisionComponent->SetCollisionProfileName("Projectile");
-	CollisionComponent->SetNotifyRigidBodyCollision(true);
-	CollisionComponent->OnComponentHit.AddDynamic(this, &AAProjectile::OnHit);
-	RootComponent = CollisionComponent;
-
-	// Activation de la simulation physique pour pouvoir définir une masse (poids)
+	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComponent"));
+	CollisionComponent->InitSphereRadius(25.0f);
 	CollisionComponent->SetSimulatePhysics(true);
-	// Définissez la masse en kilogrammes (exemple : 10kg)
-	CollisionComponent->SetMassOverrideInKg(NAME_None, 10.0f);
+	// CollisionComponent->SetMassOverrideInKg(NAME_None, 10.0f);
+	CollisionComponent->SetNotifyRigidBodyCollision(true);
+	CollisionComponent->SetCollisionProfileName("BlockAll");
+	CollisionComponent->SetupAttachment(RootScene);
 	
-	// Créez le composant mesh et l'attachez à la racine
+	CollisionComponent->OnComponentHit.AddDynamic(this, &AAProjectile::OnHit);
+	
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-
-	// Création du composant de mouvement du projectile
-	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
-	MovementComponent->UpdatedComponent = CollisionComponent;
-	MovementComponent->InitialSpeed = 0.f;
-	MovementComponent->MaxSpeed = 3000.f;
-	MovementComponent->bRotationFollowsVelocity = true;
-	MovementComponent->bShouldBounce = false;
-	// Ajustez la gravité (1.0 = gravité par défaut)
-	MovementComponent->ProjectileGravityScale = 1.0f;
+	MeshComponent->SetupAttachment(CollisionComponent);
 }
 
 void AAProjectile::BeginPlay()
@@ -43,22 +32,30 @@ void AAProjectile::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AAProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+void AAProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
-	// Vérifiez que l'acteur touché est valide et différent de nous-mêmes
-	if (OtherActor && (OtherActor != this))
+	UE_LOG(LogTemp, Warning, TEXT("Collision : %s"), *OtherActor->GetName());
+	
+	Destroy();
+
+	SpawnExplosionVFX();
+	
+}
+
+void AAProjectile::SpawnExplosionVFX()
+{
+	if (NiagaraSystem)
 	{
-		// Par exemple, on détruit le projectile uniquement si l'acteur a le tag "Destructible"
-		if (OtherActor->ActorHasTag("Destructible"))
-		{
-			// Joue l'effet sonore à l'impact, s'il est défini
-			if (ImpactSound)
-			{
-				UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
-			}
-			// Détruit le projectile
-			Destroy();
-		}
+		const FVector SpawnLocation = CollisionComponent->GetComponentLocation();
+		const FRotator SpawnRotation = CollisionComponent->GetComponentRotation();
+		
+		const FVector SpawnScale = FVector(2.0f);
+		
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NiagaraSystem, SpawnLocation, SpawnRotation, SpawnScale);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NiagaraSystemToSpawn ou NiagaraComponent n'est pas valide."));
 	}
 }
