@@ -6,10 +6,12 @@
 #include "ProjectilePawn.h"
 #include "RocketProjectile.generated.h"
 
+struct FInputActionInstance;
+class URotatingMovementComponent;
 class UCapsuleComponent;
 class USceneComponent;
 class UFloatingPawnMovement;
-
+class UInputAction;
 UCLASS()
 class FURIEUXOISEAUX_API ARocketProjectile : public AProjectilePawn
 {
@@ -27,9 +29,19 @@ public:
 	TObjectPtr<USceneComponent> SceneComponentRoot;
 	UPROPERTY(Category=Pawn, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UFloatingPawnMovement> FloatingPawnMovement;
+	UPROPERTY(Category=Pawn, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<URotatingMovementComponent> RotatingMovementLocalComponent;
+	UPROPERTY(Category=Pawn, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<URotatingMovementComponent> RotatingMovementWorldComponent;
 
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UInputAction> RotatingInputAction;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UInputAction> ExplodeInputAction;
 	UPROPERTY(EditAnywhere)
 	float ForceMultiplier;
+	UPROPERTY(EditAnywhere)
+	float RotationMultiplier;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -47,4 +59,7 @@ public:
 	virtual void PredictTrajectory(FVector DirectionValue, float ForceValue) override;
 
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
+
+	void Rotating(const FInputActionInstance& Instance);
+	void Explode(const FInputActionInstance& Instance);
 };

@@ -3,9 +3,11 @@
 
 #include "RocketProjectile.h"
 
+#include "EnhancedInputComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "GameFramework/RotatingMovementComponent.h"
 
 // Sets default values
 ARocketProjectile::ARocketProjectile()
@@ -16,14 +18,20 @@ ARocketProjectile::ARocketProjectile()
 	SceneComponentRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	SceneComponentRoot->SetupAttachment(RootComponent);
 	RootComponent = SceneComponentRoot;
+
 	SecondCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule2"));
 	SecondCapsuleComponent->SetupAttachment(SceneComponentRoot);
 	SecondCapsuleComponent->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
 	FloatingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Floating Pawn Movement"));
 
+	RotatingMovementLocalComponent = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("Rotating Movement Local"));
+	RotatingMovementLocalComponent->bRotationInLocalSpace = true;
+	RotatingMovementLocalComponent->RotationRate = FRotator::ZeroRotator;
 
-	//CapsuleComponent->SetupAttachment(SceneComponentRoot);
-	
+	RotatingMovementWorldComponent = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("Rotating Movement World"));
+	RotatingMovementWorldComponent->bRotationInLocalSpace = false;
+	RotatingMovementWorldComponent->RotationRate = FRotator::ZeroRotator;
 }
 
 // Called when the game starts or when spawned
@@ -42,15 +50,6 @@ void ARocketProjectile::ProcessLaunch(FVector DirectionValue, float ForceValue)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, "Process launch");
 	}
-	UE_LOG(LogTemp, Display, TEXT("Process launch"));
-	// if (!SecondCapsuleComponent)
-	// {
-	// 	return;
-	// }
-	// FRotator newRotation = DirectionValue.Rotation();
-	// SecondCapsuleComponent->SetRelativeRotation(newRotation);
-	// SecondCapsuleComponent->SetSimulatePhysics(true);
-	// SecondCapsuleComponent->AddImpulse(DirectionValue * ForceValue * ForceMultiplier);
 }
 
 // Called every frame
@@ -60,10 +59,6 @@ void ARocketProjectile::Tick(float DeltaTime)
 	if (!bIsLaunched)
 	{
 		return;	
-	}
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(214564, 2.0f, FColor::Yellow, "ADD Input Movement");
 	}
 	UPawnMovementComponent* MovementComponent = GetMovementComponent();
 	if (MovementComponent)
@@ -77,6 +72,10 @@ void ARocketProjectile::Tick(float DeltaTime)
 void ARocketProjectile::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	Input->BindAction(RotatingInputAction, ETriggerEvent::Triggered, this , &ARocketProjectile::Rotating);
+	Input->BindAction(RotatingInputAction, ETriggerEvent::Canceled, this , &ARocketProjectile::Rotating);
+	Input->BindAction(RotatingInputAction, ETriggerEvent::Completed, this , &ARocketProjectile::Rotating);
 }
 
 
@@ -89,5 +88,23 @@ void ARocketProjectile::PredictTrajectory(FVector DirectionValue, float ForceVal
 UPawnMovementComponent* ARocketProjectile::GetMovementComponent() const
 {
 	return FloatingPawnMovement;
+}
+
+void ARocketProjectile::Rotating(const FInputActionInstance& Instance)
+{
+	FVector2D RotatingValue = Instance.GetValue().Get<FVector2D>();
+	if (RotatingMovementLocalComponent)
+	{
+		RotatingMovementLocalComponent->RotationRate.Pitch = -RotatingValue.Y * GetWorld()->DeltaTimeSeconds * RotationMultiplier;
+	}
+	if (RotatingMovementWorldComponent)
+	{
+		RotatingMovementWorldComponent->RotationRate.Yaw = RotatingValue.X * GetWorld()->DeltaTimeSeconds * RotationMultiplier;
+	}
+}
+
+void ARocketProjectile::Explode(const FInputActionInstance& Instance)
+{
+	
 }
 
