@@ -76,14 +76,15 @@ void AFurieuxOiseauxPawn::Aiming(const FInputActionInstance& Instance)
 	FVector2D vectorValue = Instance.GetValue().Get<FVector2D>();
 	if (vectorValue.Length() > 1)
 	{
-		vectorValue.Normalize();
+		vectorValue.Normalize() ;
 	}
-
 	
 	CurrentAimingValue += vectorValue * GetWorld()->DeltaTimeSeconds * AimingSpeed;
-	if (CurrentAimingValue.Length() > 1)
+
+	if (CurrentAimingValue.Length() > 0.5)
 	{
-		CurrentAimingValue.Normalize();
+		CurrentAimingValue.Normalize() ;
+		CurrentAimingValue *= 0.5f;
 	}
 	UpdateProjectilePosition();
 	OnAiming(CurrentAimingValue);
@@ -97,7 +98,7 @@ void AFurieuxOiseauxPawn::ManageForce(const FInputActionInstance& Instance)
 	}
 	float inputValue = Instance.GetValue().Get<float>();
 	CurrentForceValue += inputValue * GetWorld()->GetDeltaSeconds() * UpdateForceSpeed;
-	CurrentForceValue = FMath::Clamp(CurrentForceValue, 0,1);
+	CurrentForceValue = FMath::Clamp(CurrentForceValue, 0.2,1);
 	UpdateProjectilePosition();
 	OnManageForce(CurrentForceValue);
 }
@@ -115,10 +116,10 @@ void AFurieuxOiseauxPawn::LaunchProjectile(const FInputActionInstance& Instance)
 		UE_LOG(LogTemp, Display, TEXT("LaunchProjectile"));
 	}
 
+	StopAiming();
+	Inventory->UseProjectileByIndex(CurrentProjectileIndex);
 	OnLaunchProjectile(CurrentAimingProjectile);
 	OnLaunchProejectileDelegate.Broadcast(CurrentAimingProjectile);
-	Inventory->UseProjectileByIndex(CurrentProjectileIndex);
-	StopAiming();
 }
 
 void AFurieuxOiseauxPawn::StartAiming()
@@ -151,10 +152,7 @@ void AFurieuxOiseauxPawn::StartAiming()
 void AFurieuxOiseauxPawn::StopAiming()
 {
 	bIsAiming = false;
-	if (true)
-	{
-		
-	}
+	
 }
 
 void AFurieuxOiseauxPawn::UpdateProjectilePosition()

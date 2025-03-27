@@ -3,6 +3,8 @@
 
 #include "ProjectileInventory.h"
 
+#include <string>
+
 UProjectileInventory::UProjectileInventory()
 {
 }
@@ -43,7 +45,7 @@ void UProjectileInventory::UseProjectileByIndex(int ProjectileIndex)
 	{
 		return;
 	}
-	InventoryValues.GetData()->NumberValue --;
+	InventoryValues[ProjectileIndex].NumberValue --;
 }
 
 int UProjectileInventory::GetNextProjectileIndex(int Index)
@@ -93,5 +95,21 @@ bool UProjectileInventory::CanUseProjectileAtIndex(int Index)
 void UProjectileInventory::ClearInventory()
 {
 	InventoryValues.Empty();
+}
+
+FString UProjectileInventory::ToString()
+{
+	FString result = "";
+	for (auto Element : InventoryValues)
+	{
+		result += Element.ClassToInstantiate->GetName() + ": " +FString::FromInt(Element.NumberValue) + "; ";
+	}
+	
+	return result;
+}
+
+TArray<FProjectileInventoryValue> UProjectileInventory::GetValues()
+{
+	return InventoryValues;
 }
 

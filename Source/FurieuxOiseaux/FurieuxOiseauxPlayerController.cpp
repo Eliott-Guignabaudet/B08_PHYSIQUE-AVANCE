@@ -46,7 +46,9 @@ void AFurieuxOiseauxPlayerController::OnLaunchProjectileCallback(TObjectPtr<AAct
 		UnPossess();
 		Possess(ProjectileCasted);
 		ProjectileCasted->OnFinishRunDelegate.AddDynamic(this, &AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback);
+		return;
 	}
+	MainCharacter->StartAiming();
 }
 
 void AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback(AProjectilePawn* Projectile)
