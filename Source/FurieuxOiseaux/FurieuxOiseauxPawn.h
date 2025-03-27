@@ -18,9 +18,10 @@ class FURIEUXOISEAUX_API AFurieuxOiseauxPawn : public APawn
 {
 	GENERATED_BODY()
 
-private:
+protected:
 	FVector2D CurrentAimingValue;
 	float CurrentForceValue;
+	UPROPERTY(BlueprintReadWrite)
 	bool bIsAiming;
 	TObjectPtr<AActor> CurrentAimingProjectile;
 	

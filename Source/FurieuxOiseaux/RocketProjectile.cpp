@@ -44,6 +44,8 @@ void ARocketProjectile::BeginPlay()
 void ARocketProjectile::ProcessLaunch(FVector DirectionValue, float ForceValue)
 {
 	Super::ProcessLaunch(DirectionValue, ForceValue);
+	LaunchedForce = ForceValue;
+	FloatingPawnMovement->MaxSpeed *= LaunchedForce;
 
 	bIsLaunched = true;
 	if (GEngine)
@@ -60,10 +62,9 @@ void ARocketProjectile::Tick(float DeltaTime)
 	{
 		return;	
 	}
-	UPawnMovementComponent* MovementComponent = GetMovementComponent();
-	if (MovementComponent)
+	if (FloatingPawnMovement)
 	{
-		MovementComponent->AddInputVector(this->GetActorForwardVector() * ForceMultiplier * DeltaTime, true);
+		FloatingPawnMovement->AddInputVector(this->GetActorForwardVector() * ForceMultiplier * DeltaTime * LaunchedForce, true);
 	}
 
 }
@@ -80,7 +81,7 @@ void ARocketProjectile::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 
 
-void ARocketProjectile::PredictTrajectory(FVector DirectionValue, float ForceValue)
+void ARocketProjectile::PredictTrajectory_Implementation(FVector DirectionValue, float ForceValue)
 {
 	Super::PredictTrajectory(DirectionValue, ForceValue);
 }

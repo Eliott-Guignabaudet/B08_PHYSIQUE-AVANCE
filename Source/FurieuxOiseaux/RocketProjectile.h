@@ -42,7 +42,9 @@ public:
 	float ForceMultiplier;
 	UPROPERTY(EditAnywhere)
 	float RotationMultiplier;
-	
+
+	UPROPERTY(BlueprintReadWrite)
+	float LaunchedForce;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -56,7 +58,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void PredictTrajectory(FVector DirectionValue, float ForceValue) override;
+	virtual void PredictTrajectory_Implementation(FVector DirectionValue, float ForceValue) override;
 
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
 

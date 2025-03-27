@@ -8,11 +8,11 @@
 #include "ProjectilePawn.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnLaunchProjectileDelegate);
-
+class AProjectilePawn;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFinishRunDelegate, AProjectilePawn*, Projectile);
 UCLASS()
 class FURIEUXOISEAUX_API AProjectilePawn : public APawn, public IProjectileInterface
 {
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnFinishRunDelegate, TObjectPtr<AProjectilePawn>);
 	GENERATED_BODY()
 
 public:
@@ -20,6 +20,7 @@ public:
 	AProjectilePawn();
 	
 	FOnLaunchProjectileDelegate OnLaunchProjectileDelegate;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnFinishRunDelegate OnFinishRunDelegate;
 protected:
 	// Called when the game starts or when spawned
@@ -34,5 +35,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	virtual void Launch(FVector DirectionValue, float ForceValue) override;
+	virtual void Launch_Implementation(FVector DirectionValue, float ForceValue) override;
 };

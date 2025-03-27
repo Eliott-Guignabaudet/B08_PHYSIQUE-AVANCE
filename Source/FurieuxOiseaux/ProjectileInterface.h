@@ -20,8 +20,10 @@ class IProjectileInterface
 
 
 public:
-	virtual void Launch(FVector DirectionValue, float ForceValue);
-	virtual void PredictTrajectory(FVector DirectionValue, float ForceValue);
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent,Category="Projectile")
+	void Launch(FVector DirectionValue, float ForceValue);
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent,Category="Projectile")
+	void PredictTrajectory(FVector DirectionValue, float ForceValue);
 	
 };
 
