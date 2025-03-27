@@ -50,9 +50,10 @@ void AFurieuxOiseauxPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (bIsAiming)
 	{
-		if (auto Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile))
+		if (CurrentAimingProjectile->GetClass()->ImplementsInterface(UProjectileInterface::StaticClass()))
 		{
-			Projectile->Execute_PredictTrajectory(CurrentAimingProjectile, GetProjectileDirection(), CurrentForceValue);
+			IProjectileInterface::Execute_PredictTrajectory(CurrentAimingProjectile, GetProjectileDirection(), CurrentForceValue);
+			
 		}
 	}
 }
@@ -109,11 +110,14 @@ void AFurieuxOiseauxPawn::LaunchProjectile(const FInputActionInstance& Instance)
 	{
 		return;
 	}
-	IProjectileInterface* Projectile = Cast<IProjectileInterface>(CurrentAimingProjectile);
-	if (Projectile)
+	if (CurrentAimingProjectile->GetClass()->ImplementsInterface(UProjectileInterface::StaticClass()))
 	{
-		Projectile->Execute_Launch(CurrentAimingProjectile,GetProjectileDirection(), CurrentForceValue);
+		IProjectileInterface::Execute_Launch(CurrentAimingProjectile,GetProjectileDirection(), CurrentForceValue);
 		UE_LOG(LogTemp, Display, TEXT("LaunchProjectile"));
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Yellow, "Launching");
+		}
 	}
 
 	StopAiming();
@@ -130,7 +134,7 @@ void AFurieuxOiseauxPawn::StartAiming()
 		auto classToInstantiate = Inventory->GetProjectileToInstantiateByIndex(CurrentProjectileIndex);
 		if (CurrentAimingProjectile)
 		{
-			CurrentAimingProjectile->Destroy();
+			CurrentAimingProjectile = nullptr;
 		}
 		if (classToInstantiate)
 		{
@@ -152,7 +156,6 @@ void AFurieuxOiseauxPawn::StartAiming()
 void AFurieuxOiseauxPawn::StopAiming()
 {
 	bIsAiming = false;
-	
 }
 
 void AFurieuxOiseauxPawn::UpdateProjectilePosition()
