@@ -41,7 +41,7 @@ void AFurieuxOiseauxPlayerController::OnPossess(APawn* InPawn)
 void AFurieuxOiseauxPlayerController::OnLaunchProjectileCallback(TObjectPtr<AActor> Projectile)
 {
 	TObjectPtr<AProjectilePawn> ProjectileCasted = Cast<AProjectilePawn>(Projectile);
-	if (ProjectileCasted)
+	if (ProjectileCasted&& GetPawn() != ProjectileCasted)
 	{
 		UnPossess();
 		Possess(ProjectileCasted);
@@ -57,6 +57,7 @@ void AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback(AProject
 	{
 		return;
 	}
+	Projectile->OnFinishRunDelegate.Clear();
 	UnPossess();
 	if (MainCharacter)
 	{
