@@ -36,5 +36,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ClearInventory();
 
-	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FString ToString();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TArray<FProjectileInventoryValue> GetValues();
 };
