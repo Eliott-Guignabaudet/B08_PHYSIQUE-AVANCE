@@ -115,10 +115,10 @@ void AFurieuxOiseauxPawn::LaunchProjectile(const FInputActionInstance& Instance)
 		UE_LOG(LogTemp, Display, TEXT("LaunchProjectile"));
 	}
 
+	StopAiming();
+	Inventory->UseProjectileByIndex(CurrentProjectileIndex);
 	OnLaunchProjectile(CurrentAimingProjectile);
 	OnLaunchProejectileDelegate.Broadcast(CurrentAimingProjectile);
-	Inventory->UseProjectileByIndex(CurrentProjectileIndex);
-	StopAiming();
 }
 
 void AFurieuxOiseauxPawn::StartAiming()
