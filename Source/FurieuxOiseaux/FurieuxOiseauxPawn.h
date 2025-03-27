@@ -65,7 +65,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UProjectileInventory> Inventory;
-	UINT CurrentProjectileIndex;
+
+	UPROPERTY(BlueprintReadWrite)
+	int CurrentProjectileIndex;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -96,7 +98,8 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FVector GetProjectileDirection();
-private:
+protected:
 	void UpdateProjectilePosition();
-	
+	UFUNCTION(BlueprintCallable)
+	void UpdateProjectile();
 };

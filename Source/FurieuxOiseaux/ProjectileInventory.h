@@ -17,15 +17,24 @@ class FURIEUXOISEAUX_API UProjectileInventory : public UObject
 	UProjectileInventory();
 	
 	TArray<FProjectileInventoryValue> InventoryValues;
-
 public:
 	UFUNCTION(BlueprintCallable)
 	int AddProjectile(FProjectileInventoryValue ProjectileValue);
-	void UseProjectile(TSubclassOf<AActor> ProjectileValue);
-	void UseProjectile(int ProjectileIndex);
+	UFUNCTION(BlueprintCallable)
+	void UseProjectileByClass(TSubclassOf<AActor> ProjectileValue);
+	UFUNCTION(BlueprintCallable)
+	void UseProjectileByIndex(int ProjectileIndex);
+	UFUNCTION(BlueprintCallable)
 	int GetNextProjectileIndex(int Index);
+	UFUNCTION(BlueprintCallable)
 	int GetPreviousProjectileIndex(int Index);
+	UFUNCTION(BlueprintCallable)
 	TSubclassOf<AActor> GetProjectileToInstantiateByIndex(int Index);
+	UFUNCTION(BlueprintCallable)
 	bool CanUseProjectileAtIndex(int Index);
+
+	UFUNCTION(BlueprintCallable)
+	void ClearInventory();
+
 	
 };

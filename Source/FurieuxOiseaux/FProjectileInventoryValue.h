@@ -11,9 +11,9 @@ struct FProjectileInventoryValue
 	
 	FProjectileInventoryValue();
 	FProjectileInventoryValue(TSubclassOf<AActor> ClassToInstantiate, int NumberValue);
-	UPROPERTY(EditAnywhere, Blueprintable)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> ClassToInstantiate;
 
-	UPROPERTY(EditAnywhere, Blueprintable)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int NumberValue;
 };

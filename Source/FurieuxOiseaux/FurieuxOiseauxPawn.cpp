@@ -16,8 +16,6 @@ AFurieuxOiseauxPawn::AFurieuxOiseauxPawn()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	CurrentProjectileIndex = 0;
-	Inventory = NewObject<UProjectileInventory>();
-	Inventory->AddProjectile(FProjectileInventoryValue(ProjectileClass, 10));
 
 	PrimaryActorTick.bCanEverTick = true;
 	SceneComponentRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
@@ -34,6 +32,9 @@ AFurieuxOiseauxPawn::AFurieuxOiseauxPawn()
 void AFurieuxOiseauxPawn::BeginPlay()
 {
 	Super::BeginPlay();
+	Inventory = NewObject<UProjectileInventory>();
+	Inventory->AddProjectile(FProjectileInventoryValue(ProjectileClass, 10));
+
 	StartAiming();
 	FVector spawnLocation = ProjectileInstantiationPosition->GetComponentLocation();
 	if (GEngine)
@@ -110,7 +111,7 @@ void AFurieuxOiseauxPawn::LaunchProjectile(const FInputActionInstance& Instance)
 
 	OnLaunchProjectile(CurrentAimingProjectile);
 	OnLaunchProejectileDelegate.Broadcast(CurrentAimingProjectile);
-	Inventory->UseProjectile(CurrentProjectileIndex);
+	Inventory->UseProjectileByIndex(CurrentProjectileIndex);
 }
 
 void AFurieuxOiseauxPawn::StartAiming()
@@ -164,6 +165,22 @@ void AFurieuxOiseauxPawn::UpdateProjectilePosition()
 	{
 		Projectile->PredictTrajectory(GetProjectileDirection(), CurrentForceValue);
 	}
+	
+}
+
+void AFurieuxOiseauxPawn::UpdateProjectile()
+{
+	auto newProjectileClass = Inventory->GetProjectileToInstantiateByIndex(CurrentProjectileIndex);
+	if (newProjectileClass == CurrentAimingProjectile.GetClass())
+	{
+		return;
+	}
+	
+
+	CurrentAimingProjectile->Destroy();
+	CurrentAimingProjectile =UE::UniversalObjectLocator::SpawnActorForLocator(GetWorld(), newProjectileClass, TEXT("Projectile"));
+	CurrentAimingProjectile->SetActorLocation(ProjectileInstantiationPosition->GetComponentLocation());
+	UpdateProjectilePosition();
 	
 }
 

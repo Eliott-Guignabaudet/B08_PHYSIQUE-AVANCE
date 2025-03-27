@@ -7,6 +7,8 @@ UProjectileInventory::UProjectileInventory()
 {
 }
 
+
+
 int UProjectileInventory::AddProjectile(FProjectileInventoryValue ProjectileValue)
 {
 	for (int i = 0; i < InventoryValues.Num(); i++)
@@ -23,7 +25,7 @@ int UProjectileInventory::AddProjectile(FProjectileInventoryValue ProjectileValu
 	return InventoryValues.Num() - 1;
 }
 
-void UProjectileInventory::UseProjectile(TSubclassOf<AActor> ProjectileValue)
+void UProjectileInventory::UseProjectileByClass(TSubclassOf<AActor> ProjectileValue)
 {
 	for (int i = 0; i < InventoryValues.Num(); i++)
 	{
@@ -35,9 +37,9 @@ void UProjectileInventory::UseProjectile(TSubclassOf<AActor> ProjectileValue)
 	}
 }
 
-void UProjectileInventory::UseProjectile(int ProjectileIndex)
+void UProjectileInventory::UseProjectileByIndex(int ProjectileIndex)
 {
-	if (!InventoryValues.IsValidIndex(ProjectileIndex) || InventoryValues[ProjectileIndex].NumberValue <= 0)
+	if ((ProjectileIndex < 0 || ProjectileIndex > InventoryValues.Num()) || InventoryValues[ProjectileIndex].NumberValue <= 0)
 	{
 		return;
 	}
@@ -64,16 +66,18 @@ int UProjectileInventory::GetPreviousProjectileIndex(int Index)
 
 TSubclassOf<AActor> UProjectileInventory::GetProjectileToInstantiateByIndex(int Index)
 {
-	if (InventoryValues.IsValidIndex(Index))
+	if (Index < 0 || Index > InventoryValues.Num())
 	{
-		return InventoryValues[Index].ClassToInstantiate;
+		return nullptr;
 	}
-	return nullptr;
+
+	return InventoryValues[Index].ClassToInstantiate;
+	
 }
 
 bool UProjectileInventory::CanUseProjectileAtIndex(int Index)
 {
-	if (!InventoryValues.IsValidIndex(Index))
+	if (Index < 0 || Index > InventoryValues.Num())
 	{
 		return false;
 	}
@@ -85,3 +89,9 @@ bool UProjectileInventory::CanUseProjectileAtIndex(int Index)
 
 	return true;
 }
+
+void UProjectileInventory::ClearInventory()
+{
+	InventoryValues.Empty();
+}
+
