@@ -20,6 +20,23 @@ void AFurieuxOiseauxPlayerController::AddMappingContextToPlayer(TObjectPtr<UInpu
 }
 
 
+void AFurieuxOiseauxPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if (TimeToWaitForStartAiming <= 0)
+	{
+		return;
+	}
+	TimeToWaitForStartAiming -= DeltaSeconds;
+	if (TimeToWaitForStartAiming <= 0)
+	{
+		TimeToWaitForStartAiming = 0;
+		if (MainCharacter)
+		{
+			MainCharacter->StartAiming();
+		}
+	}
+}
 
 void AFurieuxOiseauxPlayerController::OnPossess(APawn* InPawn)
 {
@@ -40,15 +57,19 @@ void AFurieuxOiseauxPlayerController::OnPossess(APawn* InPawn)
 
 void AFurieuxOiseauxPlayerController::OnLaunchProjectileCallback(TObjectPtr<AActor> Projectile)
 {
+	if (GetPawn() == Projectile)
+	{
+		return;
+	}
 	TObjectPtr<AProjectilePawn> ProjectileCasted = Cast<AProjectilePawn>(Projectile);
-	if (ProjectileCasted&& GetPawn() != ProjectileCasted)
+	if (ProjectileCasted)
 	{
 		UnPossess();
 		Possess(ProjectileCasted);
 		ProjectileCasted->OnFinishRunDelegate.AddDynamic(this, &AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback);
 		return;
 	}
-	MainCharacter->StartAiming();
+	TimeToWaitForStartAiming = 0.5f;
 }
 
 void AFurieuxOiseauxPlayerController::OnProjectilePawnFinishRunCallback(AProjectilePawn* Projectile)

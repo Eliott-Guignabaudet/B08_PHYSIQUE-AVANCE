@@ -16,4 +16,6 @@ struct FProjectileInventoryValue
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int NumberValue;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Name;
 };

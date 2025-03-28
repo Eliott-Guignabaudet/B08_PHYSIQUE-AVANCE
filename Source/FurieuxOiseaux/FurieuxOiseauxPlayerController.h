@@ -19,13 +19,14 @@ class FURIEUXOISEAUX_API AFurieuxOiseauxPlayerController : public APlayerControl
 private:
 	void AddMappingContextToPlayer(TObjectPtr<UInputMappingContext> Context);
 protected:
+	float TimeToWaitForStartAiming;
 	TObjectPtr<AFurieuxOiseauxPawn> MainCharacter;
 	UPROPERTY(EditAnywhere,Category="Input")
 	TObjectPtr<UInputMappingContext> GameplayInputMapping;
 	UPROPERTY(EditAnywhere,Category="Input")
 	TObjectPtr<UInputMappingContext> AdditionalProjectileInputMapping;
 public:
-	
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnPossess(APawn* InPawn) override;
 	
 	void OnLaunchProjectileCallback(TObjectPtr<AActor> Projectile);
